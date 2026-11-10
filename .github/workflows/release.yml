@@ -1,0 +1,76 @@
+name: Android Auto Tag & Release APK
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    name: Build APK and Create GitHub Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Build Release APK
+        run: |
+          gradle :app:assembleRelease --stacktrace
+
+      - name: Generate Auto Tag & Release Name
+        id: vars
+        run: |
+          # Generate incremental version tag berdasarkan run number
+          VERSION_TAG="v1.0.${{ github.run_number }}"
+          echo "tag=$VERSION_TAG" >> $GITHUB_OUTPUT
+          echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+
+      - name: Create Git Tag
+        run: |
+          git tag ${{ steps.vars.outputs.tag }}
+          git push origin ${{ steps.vars.outputs.tag }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Rename APK Output
+        run: |
+          mkdir -p release-output
+          cp app/build/outputs/apk/release/*.apk release-output/GaluraSwara-${{ steps.vars.outputs.tag }}.apk || cp app/build/outputs/apk/release/*-unsigned.apk release-output/GaluraSwara-${{ steps.vars.outputs.tag }}.apk || true
+
+      - name: Create GitHub Release with APK
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.vars.outputs.tag }}
+          name: "GaluraSwara ${{ steps.vars.outputs.tag }}"
+          body: |
+            ### 🎵 GaluraSwara - Pemutar Playlist & Musik Tradisional
+            
+            Pembaruan otomatis build dari commit `${{ github.sha }}`.
+            
+            **Tanggal Rilis:** ${{ steps.vars.outputs.date }}
+            **Fitur:**
+            - Pemutar audio Native AndroidX Media3 / ExoPlayer
+            - Katalog lagu tradisional Sunda & Nusantara
+            - Manajemen daftar putar (Playlist)
+            - UI Jetpack Compose bernuansa etnik
+            
+            *Unduh file APK di bawah ini dan pasang langsung di perangkat Android Anda.*
+          files: release-output/*.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

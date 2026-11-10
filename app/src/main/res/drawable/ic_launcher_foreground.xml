@@ -1,0 +1,10 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Icon Not Musik Etnik Emas Kuningan -->
+    <path
+        android:fillColor="#D4A373"
+        android:pathData="M38,62 A8,8 0 1,0 38,78 A8,8 0 1,0 38,62 M46,70 L46,30 L74,22 L74,62 M66,62 A8,8 0 1,0 66,78 A8,8 0 1,0 66,62 M74,70 L74,22"/>
+</vector>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Palet Warna Tradisional / Etnik GaluraSwara -->
+    <color name="primary_wood">#4A2E18</color>
+    <color name="primary_wood_dark">#2C1810</color>
+    <color name="accent_brass">#D4A373</color>
+    <color name="accent_brass_light">#E8B98A</color>
+    <color name="bg_cream">#FDFBF7</color>
+    <color name="bg_dark">#23160D</color>
+</resources>
