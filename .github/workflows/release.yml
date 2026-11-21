@@ -29,14 +29,13 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
 
-      - name: Build Release APK
+      - name: Build Signed APK
         run: |
           gradle :app:assembleRelease --stacktrace
 
       - name: Generate Auto Tag & Release Name
         id: vars
         run: |
-          # Generate incremental version tag berdasarkan run number
           VERSION_TAG="v1.0.${{ github.run_number }}"
           echo "tag=$VERSION_TAG" >> $GITHUB_OUTPUT
           echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
@@ -48,10 +47,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Rename APK Output
+      - name: Prepare Signed APK Output
         run: |
           mkdir -p release-output
-          cp app/build/outputs/apk/release/*.apk release-output/GaluraSwara-${{ steps.vars.outputs.tag }}.apk || cp app/build/outputs/apk/release/*-unsigned.apk release-output/GaluraSwara-${{ steps.vars.outputs.tag }}.apk || true
+          # Temukan APK yang sudah disign dan salin
+          find app/build/outputs/apk/release -name "*.apk" -exec cp {} release-output/GaluraSwara-${{ steps.vars.outputs.tag }}.apk \;
 
       - name: Create GitHub Release with APK
         uses: softprops/action-gh-release@v2
@@ -63,12 +63,13 @@ jobs:
             
             Pembaruan otomatis build dari commit `${{ github.sha }}`.
             
-            **Tanggal Rilis:** ${{ steps.vars.outputs.date }}
-            **Fitur:**
-            - Pemutar audio Native AndroidX Media3 / ExoPlayer
-            - Katalog lagu tradisional Sunda & Nusantara
-            - Manajemen daftar putar (Playlist)
-            - UI Jetpack Compose bernuansa etnik
+            - **Tanggal Rilis:** ${{ steps.vars.outputs.date }}
+            - **Status:** Signed APK (Siap langsung diinstall di semua perangkat Android)
+            - **Fitur:**
+              - Pemutar audio Native AndroidX Media3 / ExoPlayer
+              - Katalog lagu tradisional Sunda & Nusantara
+              - Manajemen daftar putar (Playlist)
+              - UI Jetpack Compose bernuansa etnik
             
             *Unduh file APK di bawah ini dan pasang langsung di perangkat Android Anda.*
           files: release-output/*.apk
